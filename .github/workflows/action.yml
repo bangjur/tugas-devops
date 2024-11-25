@@ -30,8 +30,9 @@ jobs:
     # Run Tests
     - name: Run tests
       run: |
-        sudo source venv/bin/activate
-        sudo pytest tests/
+        sudo . venv/bin/activate && sudo pytest tests/
+      shell: bash
+
 
     # Deploy to Server via SSH
     - name: Deploy to server
