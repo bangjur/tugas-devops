@@ -113,14 +113,14 @@ jobs:
       run: |
         # Set up SSH key with specific permissions
         mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
         
         # Add server to known hosts
         ssh-keyscan -H -t rsa $SERVER_IP >> ~/.ssh/known_hosts
         
         # SSH connection with verbose output for debugging
-        ssh -v -i ~/.ssh/id_rsa -o PreferredAuthentications=publickey -o PubkeyAcceptedKeyTypes=+ssh-rsa $SSH_USERNAME@$SERVER_IP << 'EOF'
+        ssh -v -i ~/.ssh/id_ed25519 -o PreferredAuthentications=publickey $SSH_USERNAME@$SERVER_IP << 'EOF'
           # Update package list
           sudo apt-get update
           
