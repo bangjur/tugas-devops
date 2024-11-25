@@ -5,8 +5,8 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy requirements and application code
-COPY /home/ubuntu/presentasi-devops/tugas-devops/requirements.txt /app/
-COPY /home/ubuntu/presentasi-devops/tugas-devops/app.py /app/
+COPY requirements.txt /app/
+COPY app.py /app/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
