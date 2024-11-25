@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <ul class="nav-menu">
+            <li><a href="{{ url_for('index') }}" class="menu-item">Beranda</a></li>
+            <li><a href="{{ url_for('hobi') }}" class="menu-item">Hobi</a></li>
+            <li><a href="{{ url_for('pekerjaan') }}" class="menu-item">Pekerjaan</a></li>
+            <li><a href="{{ url_for('kontak') }}" class="menu-item">Kontak</a></li>
+            <li><a href="{{ url_for('pendidikan') }}" class="menu-item">Pendidikan</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

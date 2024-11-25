@@ -1,0 +1,114 @@
+body {
+    font-family: 'Copperplate', 'Copperplate Gothic Light', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #000ce8;
+}
+
+nav {
+    background-color: #ffffff;
+    padding: 10px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: rgb(28, 10, 5);
+    text-decoration: none;
+    font-size: 18px;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #ffffff;
+}
+
+h5 {
+    color: #ffffff;
+}
+
+table {
+    color: #ffffff;
+}
+
+/* Styling untuk navigasi menu */
+.nav-menu {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    gap: 20px; /* Jarak antar menu */
+}
+
+.menu-item {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007BFF; /* Warna latar belakang */
+    color: white;
+    border-radius: 12px; /* Membulatkan ujung kotak */
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.menu-item:hover {
+    background-color: #0056b3; /* Warna saat hover */
+    transform: translateY(-2px); /* Efek hover */
+}
+
+.menu-item:active {
+    transform: translateY(1px); /* Efek saat diklik */
+}
+
+/* Styling untuk jarak antar baris */
+p {
+    line-height: 1.5; /* Menambah jarak antar baris */
+    margin-bottom: 15px; /* Menambah jarak antar paragraf */
+}
+
+/* Styling untuk kotak bersudut siku */
+.content-box {
+    padding: 10px;
+    border: 2px solid #000; /* Warna dan ukuran border */
+    background-color: #f9f9f9; /* Warna latar belakang */
+    margin: 10px auto; /* Memberikan margin otomatis di kiri dan kanan */
+    max-width: 800px; /* Membatasi lebar maksimal kotak */
+    border-radius: 0px; /* Menjaga sudut tetap siku (tanpa rounding) */
+}
+
+/* Centered styling untuk list pendidikan */
+.education-container {
+    text-align: center; /* Membuat konten di dalam div berada di tengah */
+    margin: 0 auto; /* Mengatur jarak otomatis kiri dan kanan */
+    padding: 20px;
+    max-width: 600px; /* Membatasi lebar maksimal konten */
+}
+
+.education-container ul {
+    list-style-type: none; /* Menghilangkan bullet points pada list */
+    padding: 0;
+}
+
+.education-container li {
+    margin-bottom: 20px; /* Memberikan jarak antar item list */
+    font-size: 18px;
+}
+
+.education-container li strong {
+    font-size: 20px; /* Ukuran lebih besar untuk nama institusi */
+    display: block;
+}

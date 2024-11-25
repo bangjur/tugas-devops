@@ -194,5 +194,5 @@ jobs:
     - name: Cleanup
       if: always()
       run: |
-        rm -f ~/.ssh/id_rsa
+        rm -f ~/.ssh/id_ed25519
         rm -f ~/.ssh/known_hosts
