@@ -31,7 +31,7 @@ jobs:
     - name: Run tests
       run: |
         source venv/bin/activate
-        sudo pytest tests/
+        sudo su && pytest tests/
 
     # Deploy to Server via SSH
     - name: Deploy to server
