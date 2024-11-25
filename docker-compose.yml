@@ -3,8 +3,10 @@ services:
   web:
     build: .
     ports:
-      - "5000:5000"  # Format is "host_port:container_port"
+      - "5000:5000"
+    volumes:
+      - .:/app
     environment:
       - FLASK_APP=app.py
-      - FLASK_ENV=production  # Changed to production for security
-    restart: always  # Added for reliability
+      - FLASK_ENV=production
+    restart: unless-stopped
