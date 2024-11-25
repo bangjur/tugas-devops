@@ -178,6 +178,7 @@ jobs:
           fi
           
           # Ensure Docker service is running
+          cd docker/
           sudo systemctl start docker
           sudo systemctl enable docker
           
