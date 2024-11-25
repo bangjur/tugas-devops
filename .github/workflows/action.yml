@@ -187,7 +187,7 @@ jobs:
           
           # Build and deploy with Docker
           docker-compose down
-          docker system prune -a --volumes
+          docker system prune -a --volumes -f
           docker-compose up --build -d
         EOF
     
