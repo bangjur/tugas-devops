@@ -186,6 +186,8 @@ jobs:
           sudo systemctl enable docker
           
           # Build and deploy with Docker
+          docker-compose down
+          docker system prune -a --volumes
           docker-compose up --build -d
         EOF
     
