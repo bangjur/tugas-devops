@@ -10,28 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout Code
+    # Checkout Code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Set up the environment
+    # Set up the environment
     - name: Set environment variables
       run: echo "CURRENT_PROCESS=Build" >> $GITHUB_ENV
 
-    # Step 3: Install Python Dependencies
+    # Install Python Dependencies
     - name: Install Python dependencies
       run: |
         python3 -m venv venv
         source venv/bin/activate
         pip install -r requirements.txt
 
-    # Step 4: Run Tests
+    # Run Tests
     - name: Run tests
       run: |
         source venv/bin/activate
         pytest tests/
 
-    # Step 5: Deploy to Server via SSH
+    # Deploy to Server via SSH
     - name: Deploy to server
       env:
         CURRENT_PROCESS: Deploy
@@ -39,7 +39,21 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
         chmod 600 private_key
         ssh -i private_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << EOF
-        cd /path/to/deployment/directory
+    
+    # Ensure "/home/ubuntu/presentasi-devops/" exists and navigate into it
+    - name: Create and navigate to directory
+      run: |
+        mkdir -p /home/ubuntu/presentasi-devops/
+        cd /home/ubuntu/presentasi-devops/
+
+    # Check if "/tugas-devops" exists and clone or navigate accordingly
+    - name: Clone or navigate to tugas-devops
+      run: |
+        if [ ! -d "/home/ubuntu/presentasi-devops/tugas-devops" ]; then
+          git clone https://github.com/bangjur/tugas-devops.git
+        else
+          cd /home/ubuntu/presentasi-devops/tugas-devops
+        fi
         git pull origin main
         docker-compose up --build -d
         EOF
