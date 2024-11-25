@@ -23,7 +23,9 @@ jobs:
       run: |
         python3 -m venv venv
         source venv/bin/activate
-        pip install -r requirements.txt
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
 
     # Run Tests
     - name: Run tests
@@ -38,25 +40,21 @@ jobs:
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
         chmod 600 private_key
-        ssh -i private_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << EOF
-    
-    # Ensure "/home/ubuntu/presentasi-devops/" exists and navigate into it
-    - name: Create and navigate to directory
-      run: |
-        mkdir -p /home/ubuntu/presentasi-devops/
-        cd /home/ubuntu/presentasi-devops/
+        ssh -i private_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
+          # Ensure "/home/ubuntu/presentasi-devops/" exists
+          mkdir -p /home/ubuntu/presentasi-devops/
+          cd /home/ubuntu/presentasi-devops/
 
-    # Check if "/tugas-devops" exists and clone or navigate accordingly
-    - name: Clone or navigate to tugas-devops
-      run: |
-        if [ ! -d "/home/ubuntu/presentasi-devops/tugas-devops" ]; then
-          git clone https://github.com/bangjur/tugas-devops.git
-        else
+          # Check and clone or update repository
+          if [ ! -d "/home/ubuntu/presentasi-devops/tugas-devops" ]; then
+            git clone https://github.com/bangjur/tugas-devops.git
+          else
+            cd /home/ubuntu/presentasi-devops/tugas-devops
+            git pull origin main
+          fi
+
+          # Build and restart Docker
           cd /home/ubuntu/presentasi-devops/tugas-devops
-        fi
-        git pull origin main
-        docker-compose up --build -d
+          docker-compose up --build -d
         EOF
-      # Remove private key after use
-      post-run: |
         rm -f private_key
