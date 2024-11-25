@@ -72,7 +72,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'  # Changed to match your Python version
+        python-version: '3.10'
     
     - name: Check/Create requirements.txt
       run: |
@@ -111,9 +111,16 @@ jobs:
         SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         SERVER_IP: ${{ secrets.SERVER_IP }}
       run: |
-        echo "$SSH_PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -i private_key $SSH_USERNAME@$SERVER_IP << 'EOF'
+        # Set up SSH key with specific permissions
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        
+        # Add server to known hosts
+        ssh-keyscan -H -t rsa $SERVER_IP >> ~/.ssh/known_hosts
+        
+        # SSH connection with verbose output for debugging
+        ssh -v -i ~/.ssh/id_rsa -o PreferredAuthentications=publickey -o PubkeyAcceptedKeyTypes=+ssh-rsa $SSH_USERNAME@$SERVER_IP << 'EOF'
           # Update package list
           sudo apt-get update
           
@@ -180,4 +187,6 @@ jobs:
     
     - name: Cleanup
       if: always()
-      run: rm -f private_key
+      run: |
+        rm -f ~/.ssh/id_rsa
+        rm -f ~/.ssh/known_hosts
