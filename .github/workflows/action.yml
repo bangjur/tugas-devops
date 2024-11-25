@@ -1,0 +1,48 @@
+name: DevOps Cycle
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  devops-cycle:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout Code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up the environment
+    - name: Set environment variables
+      run: echo "CURRENT_PROCESS=Build" >> $GITHUB_ENV
+
+    # Step 3: Install Python Dependencies
+    - name: Install Python dependencies
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    # Step 4: Run Tests
+    - name: Run tests
+      run: |
+        source venv/bin/activate
+        pytest tests/
+
+    # Step 5: Deploy to Server via SSH
+    - name: Deploy to server
+      env:
+        CURRENT_PROCESS: Deploy
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+        chmod 600 private_key
+        ssh -i private_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << EOF
+        cd /path/to/deployment/directory
+        git pull origin main
+        docker-compose up --build -d
+        EOF
+      # Remove private key after use
+      post-run: |
+        rm -f private_key
