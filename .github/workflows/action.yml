@@ -1,60 +1,146 @@
-name: DevOps Cycle
+# name: DevOps Cycle
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   devops-cycle:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     # Checkout Code
+#     - name: Checkout code
+#       uses: actions/checkout@v3
+
+#     # Set up the environment
+#     - name: Set environment variables
+#       run: echo "CURRENT_PROCESS=Build" >> $GITHUB_ENV
+
+#     # Install Python Dependencies
+#     - name: Install Python dependencies
+#       run: |
+#         python3 -m venv venv
+#         source venv/bin/activate
+#         if [ -f requirements.txt ]; then
+#           pip install -r requirements.txt
+#         fi
+
+#     # Run Tests
+#     - name: Run tests
+#       run: |
+#         source venv/bin/activate
+#         sudo su && pytest tests/
+
+#     # Deploy to Server via SSH
+#     - name: Deploy to server
+#       env:
+#         CURRENT_PROCESS: Deploy
+#       run: |
+#         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+#         chmod 600 private_key
+#         ssh -i private_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
+#           # Ensure "/home/ubuntu/presentasi-devops/" exists
+#           mkdir -p /home/ubuntu/presentasi-devops/
+#           cd /home/ubuntu/presentasi-devops/
+
+#           # Check and clone or update repository
+#           if [ ! -d "/home/ubuntu/presentasi-devops/tugas-devops" ]; then
+#             git clone https://github.com/bangjur/tugas-devops.git
+#           else
+#             cd /home/ubuntu/presentasi-devops/tugas-devops
+#             git pull origin main
+#           fi
+
+#           # Build and restart Docker
+#           cd /home/ubuntu/presentasi-devops/tugas-devops
+#           docker-compose up --build -d
+#         EOF
+#         rm -f private_key
+name: Deploy Application
+on: [push]
 
 jobs:
-  devops-cycle:
+  deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-    # Checkout Code
     - name: Checkout code
-      uses: actions/checkout@v3
-
-    # Set up the environment
-    - name: Set environment variables
-      run: echo "CURRENT_PROCESS=Build" >> $GITHUB_ENV
-
-    # Install Python Dependencies
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
     - name: Install Python dependencies
       run: |
-        python3 -m venv venv
+        python -m venv venv
         source venv/bin/activate
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt
-        fi
-
-    # Run Tests
+        pip install -r requirements.txt
+    
     - name: Run tests
       run: |
         source venv/bin/activate
-        sudo su && pytest tests/
-
-    # Deploy to Server via SSH
+        pytest tests/
+    
     - name: Deploy to server
       env:
         CURRENT_PROCESS: Deploy
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
       run: |
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+        echo "$SSH_PRIVATE_KEY" > private_key
         chmod 600 private_key
-        ssh -i private_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
-          # Ensure "/home/ubuntu/presentasi-devops/" exists
+        ssh -o StrictHostKeyChecking=no -i private_key $SSH_USERNAME@$SERVER_IP << 'EOF'
+          # Update package list
+          sudo apt-get update
+          
+          # Install Docker if not already installed
+          if ! command -v docker &> /dev/null; then
+            echo "Installing Docker..."
+            sudo apt-get install -y ca-certificates curl gnupg
+            sudo install -m 0755 -d /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            sudo chmod a+r /etc/apt/keyrings/docker.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            
+            # Add current user to docker group
+            sudo usermod -aG docker $USER
+          fi
+          
+          # Install Docker Compose if not already installed
+          if ! command -v docker-compose &> /dev/null; then
+            echo "Installing Docker Compose..."
+            sudo apt-get install -y docker-compose
+          fi
+          
+          # Create and navigate to directory
           mkdir -p /home/ubuntu/presentasi-devops/
           cd /home/ubuntu/presentasi-devops/
-
-          # Check and clone or update repository
-          if [ ! -d "/home/ubuntu/presentasi-devops/tugas-devops" ]; then
+          
+          # Clone or update repository
+          if [ ! -d "tugas-devops" ]; then
             git clone https://github.com/bangjur/tugas-devops.git
+            cd tugas-devops
           else
-            cd /home/ubuntu/presentasi-devops/tugas-devops
-            git pull origin main
+            cd tugas-devops
+            git fetch origin
+            git reset --hard origin/main
           fi
-
-          # Build and restart Docker
-          cd /home/ubuntu/presentasi-devops/tugas-devops
+          
+          # Ensure Docker service is running
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          
+          # Build and deploy with Docker
           docker-compose up --build -d
         EOF
-        rm -f private_key
+    
+    - name: Cleanup
+      if: always()
+      run: rm -f private_key
