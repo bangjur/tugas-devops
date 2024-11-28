@@ -72,20 +72,9 @@ def pekerjaan():
 
 @app.route('/kontak', methods=['GET', 'POST'])
 def kontak():
-    # # Get message from AWS S3
-    # response = s3_client.list_objects_v2(Bucket=S3_BUCKET)
-    # pesan_list = []
 
-    # def get_stored_msg():
-    #     for obj in response.get('Contents', []):
-    #         file = s3_client.get_object(Bucket=S3_BUCKET, Key=obj['Key'])
-    #         pesan_json = file['Body'].read().decode('utf-8')
-    #         pesan_data = json.loads(pesan_json)
-    #         pesan_list.append(pesan_data)
-
-    # Logic for submitting message
-
-    # Define global variable pesan_list
+    # Define global variable warning
+    warning=""
 
     if request.method == 'POST':
         nama = request.form['nama']
@@ -96,7 +85,7 @@ def kontak():
         if any(word in isi_pesan.lower() for word in PROHIBITED_WORDS):
             # Log the message but do not send an email
             app.logger.warning(f"Blocked message from {nama} ({email}): {isi_pesan}")
-            return render_template('kontak.html', pesan_list=[], warning="Pesan Anda mengandung kata terlarang dan tidak dapat diproses.")
+            warning="Pesan Anda mengandung kata terlarang dan tidak dapat diproses."
 
         else:
             # Store message in S3
@@ -123,7 +112,7 @@ def kontak():
             app.logger.info(f"Message from {nama} ({email}) stored and email sent: {isi_pesan}")
 
             # Provide a success message
-            return render_template('kontak.html', pesan_list=[], warning="Pesan Anda telah berhasil dikirim.")
+            warning="Pesan Anda telah berhasil dikirim"
 
     # Get message from AWS S3 and append to pesan_list
     response = s3_client.list_objects_v2(Bucket=S3_BUCKET)
@@ -135,7 +124,7 @@ def kontak():
         pesan_data = json.loads(pesan_json)
         pesan_list.append(pesan_data)
 
-    return render_template('kontak.html', pesan_list=pesan_list)
+    return render_template('kontak.html', pesan_list=pesan_list, warning=warning)
 
 
 @app.route('/pendidikan')
