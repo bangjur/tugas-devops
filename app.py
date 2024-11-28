@@ -36,7 +36,7 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Email sender dari en
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Password dari environment variable
 mail = Mail(app)
 
-S3_BUCKET = 'tugas-devops'
+S3_BUCKET = os.getenv('S3_BUCKET')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_SESSION_TOKEN = os.getenv('AWS_SESSION_TOKEN')  # Tambahkan token sesi
